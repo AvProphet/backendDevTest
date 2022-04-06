@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,11 +43,7 @@ public class ProductServiceImpl implements ProductService {
         String URL_SIMILAR_IDS = "http://localhost:3001/product/{productId}/similarids";
 
         //Providing replacement for a pathVariable in the URL
-        try {
-            URL_SIMILAR_IDS = URL_SIMILAR_IDS.replace("{productId}", URLEncoder.encode(productId, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        URL_SIMILAR_IDS = URL_SIMILAR_IDS.replace("{productId}", URLEncoder.encode(productId, StandardCharsets.UTF_8));
 
         Integer[] idsList = new Integer[3];
 
@@ -55,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
             HttpEntity responseEntity = responseBody.getEntity();
 
             String result = EntityUtils.toString(responseEntity);
-            System.out.println(result);
+
             if (result.equals("Not Found")) {
                 throw new NotFoundException();
             } else {
@@ -78,11 +75,7 @@ public class ProductServiceImpl implements ProductService {
         for (Integer id : similarIds) {
             String URL_PRODUCT = "http://localhost:3001/product/{productId}";
 
-            try {
-                URL_PRODUCT = URL_PRODUCT.replace("{productId}", URLEncoder.encode(String.valueOf(id), "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            URL_PRODUCT = URL_PRODUCT.replace("{productId}", URLEncoder.encode(String.valueOf(id), StandardCharsets.UTF_8));
 
             HttpGet getRequest = new HttpGet(URL_PRODUCT);
             ProductDto productDto;
@@ -92,8 +85,13 @@ public class ProductServiceImpl implements ProductService {
                 String result = EntityUtils.toString(responseEntity);
                 productDto = gson.fromJson(result, ProductDto.class);
 
+                //In case we have one null object, and the next one is not null, we're just skipping this value, otherwise, return the entire list
                 if (Objects.isNull(productDto)) {
-                    return similarProductsList;
+                    if (similarIds.iterator().hasNext()) {
+                        log.info("Skipping null object ti the next value");
+                    } else {
+                        return similarProductsList;
+                    }
                 } else {
                     log.info("Successfully retrieved product " + productDto + " from mock");
 
