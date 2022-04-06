@@ -1,0 +1,4 @@
+app:
+  endpointsMap:
+    similar-ids: simulado/product/{productId}/similarids
+    product-url: simulado/product/{productId}

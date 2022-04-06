@@ -1,10 +1,10 @@
 package com.test.back.service.imp;
 
 import com.google.gson.Gson;
+import com.test.back.config.HttpConfig;
 import com.test.back.dto.ProductDto;
 import com.test.back.exception.NotFoundException;
 import com.test.back.service.ProductService;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -14,24 +14,29 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
 
+    private final HttpConfig httpConfig;
     private static final Gson gson = new Gson();
     private static final CloseableHttpClient httpclient = HttpClients.createDefault();
+
+    @Autowired
+    public ProductServiceImpl(HttpConfig httpConfig) {
+        this.httpConfig = httpConfig;
+    }
 
     @Override
     public List<ProductDto> getSimilarProducts(String productId) {
@@ -41,7 +46,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private List<Integer> getSimilarIds(String productId) {
-        String URL_SIMILAR_IDS = "http://localhost:3001/product/{productId}/similarids";
+        String URL_SIMILAR_IDS = httpConfig.getUrl(HttpConfig.Endpoint.SIMILAR_IDS);
+        System.out.println(URL_SIMILAR_IDS);
 
         //Providing replacement for a pathVariable in the URL
         URL_SIMILAR_IDS = URL_SIMILAR_IDS.replace("{productId}", URLEncoder.encode(productId, StandardCharsets.UTF_8));
@@ -55,10 +61,11 @@ public class ProductServiceImpl implements ProductService {
             String result = EntityUtils.toString(responseEntity);
             int statusCode = responseBody.getCode();
 
+
             if (statusCode != HttpStatus.SC_OK) {
                 throw new NotFoundException();
             } else {
-            idsList = gson.fromJson(result, Integer[].class);
+                idsList = gson.fromJson(result, Integer[].class);
 
                 log.info("Successfully retrieved ids from mock");
 
@@ -75,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
         List<ProductDto> similarProductsList = new ArrayList<>();
 
         for (Integer id : similarIds) {
-            String URL_PRODUCT = "http://localhost:3001/product/{productId}";
+            String URL_PRODUCT = httpConfig.getUrl(HttpConfig.Endpoint.PRODUCT_URL);
 
             URL_PRODUCT = URL_PRODUCT.replace("{productId}", URLEncoder.encode(String.valueOf(id), StandardCharsets.UTF_8));
 
@@ -90,7 +97,7 @@ public class ProductServiceImpl implements ProductService {
                 productDto = gson.fromJson(result, ProductDto.class);
 
                 //In case we have one null object, and the next one is not null, we're just skipping this value, otherwise, return the entire list
-                    if (statusCode != HttpStatus.SC_OK) {
+                if (statusCode != HttpStatus.SC_OK) {
                     if (similarIds.iterator().hasNext()) {
                         log.info("Skipping null object to the next value");
                     } else {
@@ -106,7 +113,6 @@ public class ProductServiceImpl implements ProductService {
             } catch (ParseException | IOException e) {
                 e.printStackTrace();
             }
-
         }
         return similarProductsList;
     }
