@@ -11,6 +11,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.springframework.stereotype.Service;
@@ -29,8 +30,8 @@ import java.util.stream.Collectors;
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    static final Gson gson = new Gson();
-    static final CloseableHttpClient httpclient = HttpClients.createDefault();
+    private static final Gson gson = new Gson();
+    private static final CloseableHttpClient httpclient = HttpClients.createDefault();
 
     @Override
     public List<ProductDto> getSimilarProducts(String productId) {
@@ -52,8 +53,9 @@ public class ProductServiceImpl implements ProductService {
             HttpEntity responseEntity = responseBody.getEntity();
 
             String result = EntityUtils.toString(responseEntity);
+            int statusCode = responseBody.getCode();
 
-            if (result.equals("Not Found")) {
+            if (statusCode != HttpStatus.SC_OK) {
                 throw new NotFoundException();
             } else {
             idsList = gson.fromJson(result, Integer[].class);
@@ -83,12 +85,14 @@ public class ProductServiceImpl implements ProductService {
                 HttpEntity responseEntity = responseBody.getEntity();
 
                 String result = EntityUtils.toString(responseEntity);
+                int statusCode = responseBody.getCode();
+
                 productDto = gson.fromJson(result, ProductDto.class);
 
                 //In case we have one null object, and the next one is not null, we're just skipping this value, otherwise, return the entire list
-                if (Objects.isNull(productDto)) {
+                    if (statusCode != HttpStatus.SC_OK) {
                     if (similarIds.iterator().hasNext()) {
-                        log.info("Skipping null object ti the next value");
+                        log.info("Skipping null object to the next value");
                     } else {
                         return similarProductsList;
                     }
