@@ -1,9 +1,9 @@
-For tests inside docker might change URL inside the app from "http://localhost:3001" to "simulado" which is internal adress to docker image. 
+For tests inside docker there is created application-docker.yml which permit you to replace automatically "http://localhost:3001" to "simulado" which is internal adress to docker image. 
 Also for test passing, the best way to start is running command below.
 ```
 docker-compose up -d --build backtest simulado influxdb grafana
 ```
-Also need to create and configure Dockerfile which is created on my local, but may varie on your machine. 
+There is a Dockerfile created which can be used for easy deploy app on docker.
 
 # Backend dev technical test
 We want to offer a new feature to our customers showing similar products to the one they are currently seeing. To do this we agreed with our front-end applications to create a new REST API operation that will provide them the product detail of the similar products for a given one. [Here](./similarProducts.yaml) is the contract we agreed.
