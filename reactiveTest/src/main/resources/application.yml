@@ -1,0 +1,15 @@
+server:
+  port: 5000
+  error:
+    include-stacktrace: never
+
+spring:
+  mvc:
+    async:
+      request-timeout: 2000
+
+app:
+  endpointsMap:
+    similar-ids: http://localhost:3001/product/{productId}/similarids
+    product-url: http://localhost:3001/product/{productId}
+

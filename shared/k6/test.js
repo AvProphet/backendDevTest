@@ -45,7 +45,7 @@ export let options = {
   }
 };
 
-const host = "http://backtest:5000";
+const host = "http://reactiveTest:5000";
 
 export function normal() {
   http.get(host + "/product/1/similar");
