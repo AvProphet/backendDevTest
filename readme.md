@@ -1,8 +1,18 @@
+This program was made specifically to test skills when joining a company. Provides two options where backtest is written using imperative programming and reactiveTest is written using reactive programming. If you are doing the test yourself, I strongly do not recommend watching or copying the solution in order for your own solution to develop in your case.
+
+In case you want to try and test the solution yourself or even improve it, feel free to copy this repository.
+
+The difference is visible both in writing code and in the speed of test execution.
+
 For tests inside docker there is created application-docker.yml which permit you to replace automatically "http://localhost:3001" to "simulado" which is internal adress to docker image. 
+
 Also for test passing, the best way to start is running command below.
+Depending on which programm you want to test, you need to chenge name of folder in the command and also you might be change the URI in test.js when you want to launch it.
+
 ```
-docker-compose up -d --build backtest simulado influxdb grafana
+docker-compose up -d --build backtest/reactiveTest simulado influxdb grafana 
 ```
+
 There is a Dockerfile created which can be used for easy deploy app on docker.
 
 # Backend dev technical test
