@@ -32,16 +32,20 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Mono<List<ProductDto>> getSimilarProducts(String productId) {
+    public Flux<ProductDto> getSimilarProducts(String productId) {
         Flux<Integer> similarIds = getSimilarIds(productId);
 
-        return similarIds.flatMap(
-                id -> getProducts(id.toString())
-        ).collect(Collectors.toList())
+        Mono<List<ProductDto>> mono = similarIds.flatMap(
+                        id -> getProducts(id.toString())
+                ).collect(Collectors.toList())
                 .onErrorResume(throwable -> {
                     log.error("Error trying to get products from ({}) or doesnt exist", productId, throwable);
                     return Mono.error((NotFoundException::new));
                 });
+
+        return mono
+                .flatMapMany(Flux::fromIterable)
+                .log();
     }
 
     private Flux<Integer> getSimilarIds(String productId) {

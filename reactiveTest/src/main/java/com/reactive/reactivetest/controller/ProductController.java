@@ -26,7 +26,7 @@ public class ProductController {
     }
 
     @GetMapping("/{productId}/similar")
-    public Mono<List<ProductDto>> getSimilarProducts (@PathVariable String productId) {
+    public Flux<ProductDto> getSimilarProducts (@PathVariable String productId) {
         return productService.getSimilarProducts(productId);
     }
 }
