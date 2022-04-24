@@ -54,7 +54,7 @@ public class ProductServiceImpl implements ProductService {
                 .retrieve()
                 .bodyToFlux(Integer.class)
                 .onErrorResume(error -> {
-                    log.error("Error");
+                    log.error("Error while searching for {}", productId, error);
                     return Mono.error(NotFoundException::new);
                 });
     }
@@ -65,8 +65,8 @@ public class ProductServiceImpl implements ProductService {
                 .retrieve()
                 .bodyToFlux(ProductDto.class)
                 .onErrorResume(error -> {
-                    log.error("Error");
-                    return Mono.error(NotFoundException::new);
+                    log.error("Error while retrieving product {}:", productId, error);
+                    return Flux.empty();
                 });
     }
 }

@@ -27,10 +27,10 @@ public class WebFluxConfig implements WebFluxConfigurer {
     @Bean
     public WebClient getWebClient() {
         HttpClient httpClient = HttpClient.create()
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)
                 .doOnConnected(conn -> conn
-                        .addHandlerLast(new ReadTimeoutHandler(2))
-                        .addHandlerLast(new WriteTimeoutHandler(2)));
+                        .addHandlerLast(new ReadTimeoutHandler(1))
+                        .addHandlerLast(new WriteTimeoutHandler(1)));
 
         ClientHttpConnector connector = new ReactorClientHttpConnector(httpClient.wiretap(true));
 

@@ -1,8 +1,11 @@
 package com.reactive.reactivetest.exception;
 
-public class NotFoundException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+public class NotFoundException extends ResponseStatusException {
 
     public NotFoundException() {
-        super("Products not found");
+        super(HttpStatus.NOT_FOUND, "Not found");
     }
 }
